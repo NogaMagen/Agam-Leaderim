@@ -16,13 +16,13 @@ class EmployeeService:
         return JSONResponse(content=f"Employee created successfully employee: {new_employee}",
                             status_code=201)
 
-    def search_employees(self, filters: dict, current_user: str) -> JSONResponse:
-
+    def search_employees(self, search_term: str, page: int = 1, per_page: int = 10,
+                         current_user: str = None) -> JSONResponse:
         if not current_user:
             return JSONResponse(status_code=401, content="Unauthorized")
 
-        employees = self._data_layer.search_employee(filters)
-        return JSONResponse(content=f"employees {employees}", status_code=200)
+        employees = self._data_layer.search_employee(search_term, page, per_page)
+        return JSONResponse(content={"employees": employees}, status_code=200)
 
     def attach_employee_to_employer(self, attach_data: EmployeeAttach, current_user: str) -> JSONResponse:
 

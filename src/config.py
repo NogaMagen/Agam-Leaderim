@@ -21,17 +21,6 @@ class Database(BaseSettings):
         return cls()
 
 
-class Hashing(BaseSettings):
-    ENCODE_METHOD: str
-
-    class Config:
-        extra = "allow"
-
-    @classmethod
-    def get(cls):
-        return cls()
-
-
 class JWT(BaseSettings):
     SECRET_KEY: str
     ALGORITHM: str
@@ -45,6 +34,5 @@ class JWT(BaseSettings):
         return cls()
 
 
-class CsvColumns:
-    EMPLOYEES = ['first_name', 'last_name', 'position', 'government_id', 'employer_id']
-    EMPLOYERS = ['name']
+class Hashing:
+    ENCODE_METHOD = "utf-8"

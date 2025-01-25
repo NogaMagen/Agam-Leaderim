@@ -8,7 +8,7 @@ router = APIRouter()
 auth_service = Authservice()
 
 
-@router.post("/signup", response_model=SignUpResponse)
+@router.post("/signup", response_model=SignUpResponse, operation_id="user_sign_up")
 async def sign_up(user: UserCreate):
     return auth_service.sign_up(user)
 

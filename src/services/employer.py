@@ -1,4 +1,3 @@
-
 from fastapi.responses import JSONResponse
 
 from data_layer.employer import EmployerDataLayer
@@ -17,11 +16,10 @@ class EmployerService:
         return JSONResponse(content=f"Employer created successfully employer: {new_employer}",
                             status_code=201)
 
-    def search_employers(self, filters: dict, current_user: str) -> JSONResponse:
-
+    def search_employers(self, search_term: str, page: int = 1, per_page: int = 10,
+                         current_user: str = None) -> JSONResponse:
         if not current_user:
             return JSONResponse(status_code=401, content="Unauthorized")
 
-        employers = self._data_layer.search_employer(filters)
-        return JSONResponse(content=f"employers {employers}", status_code=200)
-
+        employers = self._data_layer.search_employer(search_term, page, per_page)
+        return JSONResponse(content={"employers": employers}, status_code=200)
