@@ -2,7 +2,6 @@ from fastapi.responses import JSONResponse
 
 from data_layer.users import UsersDataLayer
 from schemas.auth import UserCreate, LoginResponse
-
 from security import create_access_token, hash_password, verify_password
 
 

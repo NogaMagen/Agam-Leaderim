@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 
 from schemas.employee import EmployeeCreate, EmployeeAttachResponse, EmployeeCreateResponse, EmployeeSearchResponse, \
-    EmployeesSearch, EmployeeAttach
+    EmployeeAttach
 from security import get_current_user
 from services.employee import EmployeeService
 

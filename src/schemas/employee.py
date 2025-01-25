@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import List
 
 from pydantic import BaseModel
 
@@ -11,8 +11,6 @@ class EmployeeCreate(BaseModel):
 
     class Config:
         orm_mode = True
-
-
 
 
 class EmployeeAttach(BaseModel):
