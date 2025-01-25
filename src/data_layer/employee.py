@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from data_layer import SessionLocal, redis_client
 from models import Employee, Employer, EmployeeToEmployer
-from schemas.create import EmployeeCreate
+from schemas.employee import EmployeeCreate
 
 
 class EmployeeDataLayer:

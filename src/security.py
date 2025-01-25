@@ -8,7 +8,7 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from pydantic import BaseModel
 
-from config import Hashing, JWT
+from config import Encoding, JWT
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
@@ -27,7 +27,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None) -> s
 
 def get_current_user(token: str = Depends(oauth2_scheme)) -> Union[TokenData, JSONResponse]:
     try:
-        payload = jwt.decode(token, key=Hashing.ENCODE_METHOD, algorithms=[JWT.get().ALGORITHM])
+        payload = jwt.decode(token, key=Encoding.ENCODE_METHOD, algorithms=[JWT.get().ALGORITHM])
         username: str = payload.get("sub")
 
         if username is None:
@@ -40,11 +40,11 @@ def get_current_user(token: str = Depends(oauth2_scheme)) -> Union[TokenData, JS
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return bcrypt.checkpw(plain_password.encode(Hashing.ENCODE_METHOD),
-                          hashed_password.encode(Hashing.ENCODE_METHOD))
+    return bcrypt.checkpw(plain_password.encode(Encoding.ENCODE_METHOD),
+                          hashed_password.encode(Encoding.ENCODE_METHOD))
 
 
 def hash_password(password: str) -> str:
-    password_bytes = password.encode(Hashing.ENCODE_METHOD)
+    password_bytes = password.encode(Encoding.ENCODE_METHOD)
     hashed_password = bcrypt.hashpw(password_bytes, bcrypt.gensalt())
-    return hashed_password.decode(Hashing.ENCODE_METHOD)
+    return hashed_password.decode(Encoding.ENCODE_METHOD)

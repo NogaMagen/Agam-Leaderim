@@ -1,7 +1,7 @@
 from fastapi.responses import JSONResponse
 
 from data_layer.employer import EmployerDataLayer
-from schemas.create import EmployerCreate
+from schemas.employer import EmployerCreate
 
 
 class EmployerService:

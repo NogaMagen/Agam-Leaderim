@@ -34,5 +34,5 @@ class JWT(BaseSettings):
         return cls()
 
 
-class Hashing:
+class Encoding:
     ENCODE_METHOD = "utf-8"

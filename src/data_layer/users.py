@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from data_layer import SessionLocal
 from models import User
-from schemas.create import UserCreate
+from schemas.auth import UserCreate
 
 
 class UsersDataLayer:

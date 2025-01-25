@@ -1,7 +1,7 @@
 from fastapi.responses import JSONResponse
 
 from data_layer.employee import EmployeeDataLayer
-from schemas.create import EmployeeCreate, EmployeeAttach
+from schemas.employee import EmployeeCreate, EmployeeAttach
 
 
 class EmployeeService:
