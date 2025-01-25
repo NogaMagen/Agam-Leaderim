@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 class EmployerCreate(BaseModel):
     name: str
-    employees: str
+    government_id: int
 
     class Config:
         orm_mode = True
@@ -13,14 +13,10 @@ class EmployerCreate(BaseModel):
 
 class EmployerCreateResponse(BaseModel):
     message: str
-    employee: EmployerCreate
+    employer: EmployerCreate
 
 
 class EmployerSearchResponse(BaseModel):
-    employees: List[EmployerCreate]
+    employers: List[EmployerCreate]
 
 
-class EmployersSearch(BaseModel):
-    search_term: str
-    page: Optional[int] = 1
-    per_page: Optional[int] = 10

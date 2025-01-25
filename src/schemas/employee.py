@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Optional, List
 
 from pydantic import BaseModel
 
@@ -7,16 +7,12 @@ class EmployeeCreate(BaseModel):
     first_name: str
     last_name: str
     position: str
-    government_id: str
+    government_id: int
 
     class Config:
         orm_mode = True
 
 
-class EmployeesSearch(BaseModel):
-    search_term: str
-    page: Optional[int] = 1
-    per_page: Optional[int] = 10
 
 
 class EmployeeAttach(BaseModel):

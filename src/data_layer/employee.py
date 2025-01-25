@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from data_layer import SessionLocal, redis_client
 from models import Employee, Employer, EmployeeToEmployer
-from schemas.employee import EmployeeCreate, EmployeesSearch, EmployeeAttach
+from schemas.employee import EmployeeCreate, EmployeeAttach
 
 
 class EmployeeDataLayer:
@@ -22,24 +22,30 @@ class EmployeeDataLayer:
         self._db.refresh(new_employee)
         return new_employee
 
-    def search_employee(self, employee_search: EmployeesSearch) -> List[Employee]:
-
-        cache_key = f"employee_search:{employee_search.search_term}:{employee_search.page}:{employee_search.per_page}"
+    def search_employee(self, search_term: str,
+                        page: int = 1, per_page: int = 10) -> List[Employee]:
+        cache_key = f"employee_search:{search_term}:{page}:{per_page}"
         cached_data = self._redis.get(cache_key)
         if cached_data:
             return json.loads(cached_data)
+        search_words = search_term.split()
+        conditions = []
+        for word in search_words:
+            conditions.append(
+                func.lower(Employee.first_name).like(f"%{word.lower()}%") |
+                func.lower(Employee.last_name).like(f"%{word.lower()}%") |
+                func.lower(Employee.position).like(f"%{word.lower()}%") |
+                func.cast(Employee.government_id, String).like(f"%{word}%")
+            )
 
-        query = self._db.query(Employee).filter(
-            func.lower(Employee.first_name).like(f"%{employee_search.search_term.lower()}%") |
-            func.lower(Employee.last_name).like(f"%{employee_search.search_term.lower()}%") |
-            func.lower(Employee.position).like(f"%{employee_search.search_term.lower()}%") |
-            func.cast(Employee.government_id, String).like(f"%{employee_search.search_term}%")
-        )
+        query = self._db.query(Employee).filter(*conditions)
 
-        query = query.offset((employee_search.page - 1) * employee_search.per_page).limit(employee_search.per_page)
+        query = query.order_by(func.length(Employee.first_name).desc())
+        query = query.offset((page - 1) * per_page).limit(per_page)
         employees = query.all()
 
-        self._redis.setex(cache_key, timedelta(minutes=1), json.dumps([employee.to_dict() for employee in employees]))
+        self._redis.setex(cache_key, timedelta(minutes=1),
+                          json.dumps([employee.to_dict() for employee in employees]))
 
         return employees
 
