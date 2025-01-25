@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+sqlalchemy
+psycopg2
+bcrypt
+pandas
+python-jose>=3.3.0
+pydantic>=2.0
+pydantic_settings>=2.0
