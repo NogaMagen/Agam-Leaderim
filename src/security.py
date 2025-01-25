@@ -13,11 +13,6 @@ from config import Hashing, JWT
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
-
 class TokenData(BaseModel):
     username: str | None = None
 
@@ -34,11 +29,14 @@ def get_current_user(token: str = Depends(oauth2_scheme)) -> Union[TokenData, JS
     try:
         payload = jwt.decode(token, Hashing.get().SECRET_KEY, algorithms=[Hashing.get().ALGORITHM])
         username: str = payload.get("sub")
+
         if username is None:
-            return JSONResponse(status_code=401, content={"detail": "Could not validate credentials"})
+            return JSONResponse(status_code=401, content="Could not validate credentials")
+
         return TokenData(username=username)
+
     except JWTError:
-        return JSONResponse(status_code=401, content={"detail": "Could not validate credentials"})
+        return JSONResponse(status_code=401, content="Could not validate credentials")
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:

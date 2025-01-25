@@ -1,10 +1,10 @@
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(100) NOT NULL,
-    password VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE employees (
+CREATE TABLE IF NOT EXISTS employees (
     id SERIAL PRIMARY KEY,
     first_name VARCHAR(255) NOT NULL,
     last_name VARCHAR(255) NOT NULL,
@@ -12,15 +12,13 @@ CREATE TABLE employees (
     government_id INT UNIQUE NOT NULL
 );
 
-
-CREATE TABLE employers (
+CREATE TABLE IF NOT EXISTS employers (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255),
     government_id INT UNIQUE NOT NULL
 );
 
-
-CREATE TABLE employees_to_employers (
+CREATE TABLE IF NOT EXISTS employees_to_employers (
     id SERIAL PRIMARY KEY,
     employee_id INT NOT NULL,
     employer_id INT NOT NULL,
