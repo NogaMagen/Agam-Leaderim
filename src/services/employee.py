@@ -1,6 +1,6 @@
 from fastapi.responses import JSONResponse
 
-from data_layer.employee import EmployeeDataLayer
+from data_layer.employee import EmployeeDataLayer, EmployeesSearch
 from schemas.employee import EmployeeCreate, EmployeeAttach
 
 
@@ -16,12 +16,12 @@ class EmployeeService:
         return JSONResponse(content=f"Employee created successfully employee: {new_employee}",
                             status_code=201)
 
-    def search_employees(self, search_term: str, page: int = 1, per_page: int = 10,
-                         current_user: str = None) -> JSONResponse:
+    def search_employees(self, employee_search: EmployeesSearch, current_user: str) -> JSONResponse:
+
         if not current_user:
             return JSONResponse(status_code=401, content="Unauthorized")
 
-        employees = self._data_layer.search_employee(search_term, page, per_page)
+        employees = self._data_layer.search_employee(employee_search=employee_search)
         return JSONResponse(content={"employees": employees}, status_code=200)
 
     def attach_employee_to_employer(self, attach_data: EmployeeAttach, current_user: str) -> JSONResponse:
@@ -29,10 +29,7 @@ class EmployeeService:
         if not current_user:
             return JSONResponse(status_code=401, content="Unauthorized")
 
-        success = self._data_layer.attach_employee_to_employer(
-            employee_id=attach_data.employee_id,
-            employer_id=attach_data.employer_id
-        )
+        success = self._data_layer.attach_employee_to_employer(attach_data)
         if success:
             return JSONResponse(content="Employee attached to employer successfully", status_code=200)
         else:

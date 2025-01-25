@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from data_layer import SessionLocal, redis_client
 from models import Employer
-from schemas.employer import EmployerCreate
+from schemas.employer import EmployerCreate, EmployersSearch
 
 
 class EmployerDataLayer:
@@ -22,18 +22,18 @@ class EmployerDataLayer:
         self._db.refresh(new_employer)
         return new_employer
 
-    def search_employer(self, search_term: str, page: int = 1, per_page: int = 10) -> List[Employer]:
-        cache_key = f"employer_search:{search_term}:{page}:{per_page}"
+    def search_employer(self, employers_search: EmployersSearch) -> List[Employer]:
+        cache_key = f"employer_search:{employers_search.search_term}:{employers_search.page}:{employers_search.per_page}"
         cached_data = self._redis.get(cache_key)
         if cached_data:
             return json.loads(cached_data)
 
         query = self._db.query(Employer).filter(
-            func.lower(Employer.name).like(f"%{search_term.lower()}%") |
-            func.cast(Employer.government_id, String).like(f"%{search_term}%")
+            func.lower(Employer.name).like(f"%{employers_search.search_term.lower()}%") |
+            func.cast(Employer.government_id, String).like(f"%{employers_search.search_term}%")
         )
 
-        query = query.offset((page - 1) * per_page).limit(per_page)
+        query = query.offset((employers_search.page - 1) * employers_search.per_page).limit(employers_search.per_page)
         employers = query.all()
 
         self._redis.setex(cache_key, timedelta(minutes=1), json.dumps([employer.to_dict() for employer in employers]))

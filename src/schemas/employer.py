@@ -1,6 +1,7 @@
-from typing import List
+from typing import List, Optional
 
 from pydantic import BaseModel
+
 
 class EmployerCreate(BaseModel):
     name: str
@@ -10,8 +11,6 @@ class EmployerCreate(BaseModel):
         orm_mode = True
 
 
-
-
 class EmployerCreateResponse(BaseModel):
     message: str
     employee: EmployerCreate
@@ -19,3 +18,9 @@ class EmployerCreateResponse(BaseModel):
 
 class EmployerSearchResponse(BaseModel):
     employees: List[EmployerCreate]
+
+
+class EmployersSearch(BaseModel):
+    search_term: str
+    page: Optional[int] = 1
+    per_page: Optional[int] = 10
