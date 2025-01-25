@@ -22,7 +22,7 @@ class Employee(Base):
     position = Column(String(255), nullable=False)
     government_id = Column(Integer, unique=True, nullable=False)
 
-    employer_relationship = relationship("EmployersToEmployees", back_populates="employee")
+    employer_relationship = relationship("EmployeeToEmployer", back_populates="employee")
 
 
 class Employer(Base):
@@ -32,7 +32,7 @@ class Employer(Base):
     name = Column(String)
     government_id = Column(Integer, unique=True, nullable=False)
 
-    employee_relationships = relationship("EmployersToEmployees", back_populates="employer")
+    employee_relationships = relationship("EmployeeToEmployer", back_populates="employer")
 
 
 class EmployeeToEmployer(Base):
@@ -42,5 +42,5 @@ class EmployeeToEmployer(Base):
     employee_id = Column(Integer, ForeignKey("employees.id"), unique=True, nullable=False)
     employer_id = Column(Integer, ForeignKey("employers.id"), nullable=False)
 
-    employee = relationship("Employees", back_populates="employer_relationship")
-    employer = relationship("Employers", back_populates="employee_relationships")
+    employee = relationship("Employee", back_populates="employer_relationship")
+    employer = relationship("Employer", back_populates="employee_relationships")
