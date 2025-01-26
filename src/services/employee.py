@@ -8,7 +8,7 @@ class EmployeeService:
     def __init__(self):
         self._data_layer = EmployeeDataLayer()
 
-    def create_employee(self, employee: EmployeeCreate, current_user: str = "j") -> JSONResponse:
+    def create_employee(self, employee: EmployeeCreate, current_user: str) -> JSONResponse:
         if not current_user:
             return JSONResponse(status_code=401, content="Unauthorized")
 
@@ -16,15 +16,15 @@ class EmployeeService:
         return JSONResponse(content=f"Employee created successfully employee: {new_employee}",
                             status_code=201)
 
-    def search_employees(self, search_term: str, current_user: str = "j") -> JSONResponse:
+    def search_employees(self, search_term: str, current_user: str) -> JSONResponse:
 
         if not current_user:
             return JSONResponse(status_code=401, content="Unauthorized")
 
-        employees = self._data_layer.search_employee(search_term)
+        employees = self._data_layer.search_employees(search_term)
         return JSONResponse(content={"employees": employees}, status_code=200)
 
-    def attach_employee_to_employer(self, attach_data: EmployeeAttachCreate, current_user: str = "j") -> JSONResponse:
+    def attach_employee_to_employer(self, attach_data: EmployeeAttachCreate, current_user: str) -> JSONResponse:
 
         if not current_user:
             return JSONResponse(status_code=401, content="Unauthorized")

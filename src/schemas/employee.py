@@ -4,6 +4,7 @@ from pydantic import BaseModel
 
 
 class EmployeeCreate(BaseModel):
+    id: int
     first_name: str
     last_name: str
     position: str
@@ -11,6 +12,7 @@ class EmployeeCreate(BaseModel):
 
     class Config:
         orm_mode = True
+        from_attributes = True
 
 
 class EmployeeAttachCreate(BaseModel):

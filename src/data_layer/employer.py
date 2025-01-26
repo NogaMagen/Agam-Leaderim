@@ -2,6 +2,7 @@ import json
 from datetime import timedelta
 from typing import List
 
+from fastapi.encoders import jsonable_encoder
 from sqlalchemy import func, String
 from sqlalchemy.orm import Session
 
@@ -22,10 +23,10 @@ class EmployerDataLayer:
         self._db.refresh(new_employer)
         return new_employer
 
-    def search_employer(self, search_term: str,
-                        page: int = 1, per_page: int = 10) -> List[Employer]:
+    def search_employer(self, search_term: str, page: int = 1, per_page: int = 10) -> List[EmployerCreate]:
         cache_key = f"employer_search:{search_term}:{page}:{per_page}"
         cached_data = self._redis.get(cache_key)
+
         if cached_data:
             return json.loads(cached_data)
 
@@ -40,10 +41,11 @@ class EmployerDataLayer:
 
         query = self._db.query(Employer).filter(*conditions)
         query = query.order_by(func.length(Employer.name).desc())
-
         query = query.offset((page - 1) * per_page).limit(per_page)
+
         employers = query.all()
+        serialized_employers = [EmployerCreate.from_orm(employer) for employer in employers]
+        serialized_employers_dict = jsonable_encoder(serialized_employers)
+        self._redis.setex(cache_key, timedelta(minutes=1), json.dumps(serialized_employers_dict))
 
-        self._redis.setex(cache_key, timedelta(minutes=1), json.dumps([employer.to_dict() for employer in employers]))
-
-        return employers
+        return serialized_employers_dict

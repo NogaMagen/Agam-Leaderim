@@ -2,6 +2,7 @@ import json
 from datetime import timedelta
 from typing import List
 
+from fastapi.encoders import jsonable_encoder
 from sqlalchemy import func, String
 from sqlalchemy.orm import Session
 
@@ -22,12 +23,13 @@ class EmployeeDataLayer:
         self._db.refresh(new_employee)
         return new_employee
 
-    def search_employee(self, search_term: str,
-                        page: int = 1, per_page: int = 10) -> List[Employee]:
+    def search_employees(self, search_term: str, page: int = 1, per_page: int = 10) -> List[EmployeeCreate]:
         cache_key = f"employee_search:{search_term}:{page}:{per_page}"
         cached_data = self._redis.get(cache_key)
+
         if cached_data:
             return json.loads(cached_data)
+
         search_words = search_term.split()
         conditions = []
         for word in search_words:
@@ -39,15 +41,15 @@ class EmployeeDataLayer:
             )
 
         query = self._db.query(Employee).filter(*conditions)
-
         query = query.order_by(func.length(Employee.first_name).desc())
         query = query.offset((page - 1) * per_page).limit(per_page)
+
         employees = query.all()
+        serialized_employees = [EmployeeCreate.from_orm(employee) for employee in employees]
+        serialized_employees_dict = jsonable_encoder(serialized_employees)
+        self._redis.setex(cache_key, timedelta(minutes=1), json.dumps(serialized_employees_dict))
 
-        self._redis.setex(cache_key, timedelta(minutes=1),
-                          json.dumps([employee.to_dict() for employee in employees]))
-
-        return employees
+        return serialized_employees_dict
 
     def attach_employee_to_employer(self, employee_attach: EmployeeAttachCreate) -> bool:
 
