@@ -63,7 +63,7 @@ class EmployeeDataLayer:
 
             if not existing_association:
 
-                new_association = EmployeeToEmployer(employee_id=employee_attach.mployee_id,
+                new_association = EmployeeToEmployer(employee_id=employee_attach.employee_id,
                                                      employer_id=employee_attach.employer_id)
                 self._db.add(new_association)
                 self._db.commit()
