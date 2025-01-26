@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from data_layer import SessionLocal, redis_client
 from models import Employee, Employer, EmployeeToEmployer
-from schemas.employee import EmployeeCreate, EmployeeAttach
+from schemas.employee import EmployeeCreate, EmployeeAttachCreate
 
 
 class EmployeeDataLayer:
@@ -49,7 +49,7 @@ class EmployeeDataLayer:
 
         return employees
 
-    def attach_employee_to_employer(self, employee_attach: EmployeeAttach) -> bool:
+    def attach_employee_to_employer(self, employee_attach: EmployeeAttachCreate) -> bool:
 
         employee = self._db.query(Employee).filter(Employee.id == employee_attach.employee_id).first()
         employer = self._db.query(Employer).filter(Employer.id == employee_attach.employer_id).first()

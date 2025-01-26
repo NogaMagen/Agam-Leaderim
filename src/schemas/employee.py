@@ -13,7 +13,7 @@ class EmployeeCreate(BaseModel):
         orm_mode = True
 
 
-class EmployeeAttach(BaseModel):
+class EmployeeAttachCreate(BaseModel):
     employee_id: int
     employer_id: int
 

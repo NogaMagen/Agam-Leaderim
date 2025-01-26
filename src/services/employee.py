@@ -1,7 +1,7 @@
 from fastapi.responses import JSONResponse
 
 from data_layer.employee import EmployeeDataLayer
-from schemas.employee import EmployeeCreate, EmployeeAttach
+from schemas.employee import EmployeeCreate, EmployeeAttachCreate
 
 
 class EmployeeService:
@@ -24,7 +24,7 @@ class EmployeeService:
         employees = self._data_layer.search_employee(search_term)
         return JSONResponse(content={"employees": employees}, status_code=200)
 
-    def attach_employee_to_employer(self, attach_data: EmployeeAttach, current_user: str = "j") -> JSONResponse:
+    def attach_employee_to_employer(self, attach_data: EmployeeAttachCreate, current_user: str = "j") -> JSONResponse:
 
         if not current_user:
             return JSONResponse(status_code=401, content="Unauthorized")
