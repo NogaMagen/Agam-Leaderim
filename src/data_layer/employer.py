@@ -23,7 +23,7 @@ class EmployerDataLayer:
         self._db.refresh(new_employer)
         return new_employer
 
-    def search_employer(self, search_term: str, page: int = 1, per_page: int = 10) -> List[EmployerCreate]:
+    def search_employers(self, search_term: str, page: int = 1, per_page: int = 10) -> List[EmployerCreate]:
         cache_key = f"employer_search:{search_term}:{page}:{per_page}"
         cached_data = self._redis.get(cache_key)
 

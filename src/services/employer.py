@@ -16,10 +16,10 @@ class EmployerService:
         return JSONResponse(content=f"Employer created successfully employer: {new_employer}",
                             status_code=201)
 
-    def search_employers(self, search_term: str,
-                         current_user: str) -> JSONResponse:
+    def search_employers(self, search_term: str, current_user: str) -> JSONResponse:
+
         if not current_user:
             return JSONResponse(status_code=401, content="Unauthorized")
 
-        employers = self._data_layer.search_employer(search_term)
+        employers = self._data_layer.search_employers(search_term)
         return JSONResponse(content={"employers": employers}, status_code=200)
