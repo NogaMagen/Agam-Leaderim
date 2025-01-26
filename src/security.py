@@ -35,23 +35,19 @@ def hash_password(password: str) -> str:
 
 def get_current_user(token: str = Depends(oauth2_scheme)) -> TokenData:
     try:
-        # Decode the token
         payload = jwt.decode(token, key=JWT.get().SECRET_KEY, algorithms=[JWT.get().ALGORITHM])
         username: str = payload.get("sub")
 
-        # Validate username
         if username is None:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token payload")
 
-        # Validate expiration
         if "exp" in payload:
             exp = datetime.fromtimestamp(payload["exp"], tz=timezone.utc)
             if datetime.now(timezone.utc) >= exp:
                 raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token has expired")
-
         return TokenData(username=username)
 
-    except JWTError as e:
+    except JWTError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate token")
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Error: {str(e)}")
