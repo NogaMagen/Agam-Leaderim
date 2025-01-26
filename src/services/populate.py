@@ -3,6 +3,7 @@ import io
 from typing import Type
 
 from fastapi import UploadFile
+from sqlalchemy.exc import IntegrityError
 
 from data_layer import SessionLocal
 from models import Employee, Employer
@@ -18,11 +19,24 @@ class PopulateService:
         reader = csv.DictReader(text_file)
 
         for row in reader:
-            instance = model(**row)
-            self._db.add(instance)
+            government_id = row.get("government_id")
+            existing_instance = self._db.query(model).filter_by(government_id=government_id).first()
 
-        self._db.commit()
-        self._db.refresh()
+            if existing_instance:
+                continue
+
+            try:
+                instance = model(**row)
+                self._db.add(instance)
+            except IntegrityError as e:
+                self._db.rollback()
+
+        try:
+            self._db.commit()
+        except IntegrityError as e:
+            self._db.rollback()
+        finally:
+            self._db.refresh()
 
     async def populate_employees(self, file: UploadFile):
         await self.populate_from_csv(model=Employee, file=file)
