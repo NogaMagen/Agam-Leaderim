@@ -1,20 +1,15 @@
 from datetime import datetime, timedelta
-from typing import Union
 
 import bcrypt
-from fastapi import Depends
-from fastapi.responses import JSONResponse
+from fastapi import Depends, HTTPException
+from fastapi import status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
-from pydantic import BaseModel
 
 from config import Encoding, JWT
+from schemas.auth import TokenData
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-
-
-class TokenData(BaseModel):
-    username: str | None = None
 
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
@@ -25,18 +20,22 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None) -> s
     return encoded_jwt
 
 
-def get_current_user(token: str = Depends(oauth2_scheme)) -> Union[TokenData, JSONResponse]:
+def get_current_user(token: str = Depends(oauth2_scheme)) -> TokenData:
     try:
         payload = jwt.decode(token, key=Encoding.ENCODE_METHOD, algorithms=[JWT.get().ALGORITHM])
         username: str = payload.get("sub")
 
         if username is None:
-            return JSONResponse(status_code=401, content="Could not validate credentials")
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate credentials")
+
+        # Check if the token is expired
+        if payload.get("exp") and datetime.utcfromtimestamp(payload["exp"]) < datetime.utcnow():
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token has expired")
 
         return TokenData(username=username)
 
     except JWTError:
-        return JSONResponse(status_code=401, content="Could not validate credentials")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate credentials")
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
