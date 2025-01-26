@@ -19,7 +19,7 @@ async def create_employee(employee: EmployeeCreate, current_user: str = Depends(
     return employee_service.create_employee(employee, current_user)
 
 
-@router.post("/search_employees", response_model=EmployeeSearchResponse, operation_id="search_employees")
+@router.get("/search_employees", response_model=EmployeeSearchResponse, operation_id="search_employees")
 async def search_employees(search_term: str,
                            current_user: str = Depends(get_current_user)):
     return employee_service.search_employees(search_term, current_user)
