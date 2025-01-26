@@ -12,7 +12,7 @@ class EmployeeService:
         if not current_user:
             return JSONResponse(status_code=401, content="Unauthorized")
 
-        new_employee = self._data_layer.create_employee(employee)
+        new_employee = self._data_layer.create(employee)
         return JSONResponse(content=f"Employee created successfully employee: {new_employee}",
                             status_code=201)
 
@@ -21,7 +21,7 @@ class EmployeeService:
         if not current_user:
             return JSONResponse(status_code=401, content="Unauthorized")
 
-        employees = self._data_layer.search_employees(search_term)
+        employees = self._data_layer.search(search_term)
         return JSONResponse(content={"employees": employees}, status_code=200)
 
     def attach_employee_to_employer(self, attach_data: EmployeeAttachCreate, current_user: str) -> JSONResponse:

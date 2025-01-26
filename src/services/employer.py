@@ -12,7 +12,7 @@ class EmployerService:
         if not current_user:
             return JSONResponse(status_code=401, content="Unauthorized")
 
-        new_employer = self._data_layer.create_employer(employer)
+        new_employer = self._data_layer.create(employer)
         return JSONResponse(content=f"Employer created successfully employer: {new_employer}",
                             status_code=201)
 
@@ -21,5 +21,5 @@ class EmployerService:
         if not current_user:
             return JSONResponse(status_code=401, content="Unauthorized")
 
-        employers = self._data_layer.search_employers(search_term)
+        employers = self._data_layer.search(search_term)
         return JSONResponse(content={"employers": employers}, status_code=200)
