@@ -1,51 +1,10 @@
-import json
-from datetime import timedelta
-from typing import List
-
-from fastapi.encoders import jsonable_encoder
-from sqlalchemy import func, String
-from sqlalchemy.orm import Session
-
+from data_layer.base import BaseDataLayer
 from data_layer import SessionLocal, redis_client
 from models import Employer
 from schemas.employer import EmployerCreate
 
 
-class EmployerDataLayer:
+class EmployerDataLayer(BaseDataLayer):
     def __init__(self):
-        self._db: Session = SessionLocal
-        self._redis = redis_client
-
-    def create_employer(self, employer: EmployerCreate) -> Employer:
-        new_employer = Employer(**employer.dict())
-        self._db.add(new_employer)
-        self._db.commit()
-        self._db.refresh(new_employer)
-        return new_employer
-
-    def search_employers(self, search_term: str, page: int = 1, per_page: int = 10) -> List[EmployerCreate]:
-        cache_key = f"employer_search:{search_term}:{page}:{per_page}"
-        cached_data = self._redis.get(cache_key)
-
-        if cached_data:
-            return json.loads(cached_data)
-
-        search_words = search_term.split()
-
-        conditions = []
-        for word in search_words:
-            conditions.append(
-                func.lower(Employer.name).like(f"%{word.lower()}%") |
-                func.cast(Employer.government_id, String).like(f"%{word}%")
-            )
-
-        query = self._db.query(Employer).filter(*conditions)
-        query = query.order_by(func.length(Employer.name).desc())
-        query = query.offset((page - 1) * per_page).limit(per_page)
-
-        employers = query.all()
-        serialized_employers = [EmployerCreate.from_orm(employer) for employer in employers]
-        serialized_employers_dict = jsonable_encoder(serialized_employers)
-        self._redis.setex(cache_key, timedelta(minutes=1), json.dumps(serialized_employers_dict))
-
-        return serialized_employers_dict
+        super().__init__(model=Employer, create_schema=EmployerCreate, db_session=SessionLocal,
+                         redis_client=redis_client)

@@ -1,55 +1,13 @@
-import json
-from datetime import timedelta
-from typing import List
-
-from fastapi.encoders import jsonable_encoder
-from sqlalchemy import func, String
-from sqlalchemy.orm import Session
-
 from data_layer import SessionLocal, redis_client
+from data_layer.base import BaseDataLayer
 from models import Employee, Employer, EmployeeToEmployer
 from schemas.employee import EmployeeCreate, EmployeeAttachCreate
 
 
-class EmployeeDataLayer:
+class EmployeeDataLayer(BaseDataLayer):
     def __init__(self):
-        self._db: Session = SessionLocal
-        self._redis = redis_client
-
-    def create_employee(self, employee: EmployeeCreate) -> Employee:
-        new_employee = Employee(**employee.dict())
-        self._db.add(new_employee)
-        self._db.commit()
-        self._db.refresh(new_employee)
-        return new_employee
-
-    def search_employees(self, search_term: str, page: int = 1, per_page: int = 10) -> List[EmployeeCreate]:
-        cache_key = f"employee_search:{search_term}:{page}:{per_page}"
-        cached_data = self._redis.get(cache_key)
-
-        if cached_data:
-            return json.loads(cached_data)
-
-        search_words = search_term.split()
-        conditions = []
-        for word in search_words:
-            conditions.append(
-                func.lower(Employee.first_name).like(f"%{word.lower()}%") |
-                func.lower(Employee.last_name).like(f"%{word.lower()}%") |
-                func.lower(Employee.position).like(f"%{word.lower()}%") |
-                func.cast(Employee.government_id, String).like(f"%{word}%")
-            )
-
-        query = self._db.query(Employee).filter(*conditions)
-        query = query.order_by(func.length(Employee.first_name).desc())
-        query = query.offset((page - 1) * per_page).limit(per_page)
-
-        employees = query.all()
-        serialized_employees = [EmployeeCreate.from_orm(employee) for employee in employees]
-        serialized_employees_dict = jsonable_encoder(serialized_employees)
-        self._redis.setex(cache_key, timedelta(minutes=1), json.dumps(serialized_employees_dict))
-
-        return serialized_employees_dict
+        super().__init__(model=Employee, create_schema=EmployeeCreate, db_session=SessionLocal,
+                         redis_client=redis_client)
 
     def attach_employee_to_employer(self, employee_attach: EmployeeAttachCreate) -> bool:
 
