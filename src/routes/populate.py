@@ -19,4 +19,3 @@ async def populate_employers(file: UploadFile = File(...)):
     await populate.populate_employers(file)
     return JSONResponse(status_code=200, content="Employers populated successfully")
 
-:""
