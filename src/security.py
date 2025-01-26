@@ -20,6 +20,17 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None) -> s
     return encoded_jwt
 
 
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return bcrypt.checkpw(plain_password.encode(Encoding.ENCODE_METHOD),
+                          hashed_password.encode(Encoding.ENCODE_METHOD))
+
+
+def hash_password(password: str) -> str:
+    password_bytes = password.encode(Encoding.ENCODE_METHOD)
+    hashed_password = bcrypt.hashpw(password_bytes, bcrypt.gensalt())
+    return hashed_password.decode(Encoding.ENCODE_METHOD)
+
+
 def get_current_user(token: str = Depends(oauth2_scheme)) -> TokenData:
     try:
         payload = jwt.decode(token, key=Encoding.ENCODE_METHOD, algorithms=[JWT.get().ALGORITHM])
@@ -35,14 +46,3 @@ def get_current_user(token: str = Depends(oauth2_scheme)) -> TokenData:
 
     except JWTError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate credentials")
-
-
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return bcrypt.checkpw(plain_password.encode(Encoding.ENCODE_METHOD),
-                          hashed_password.encode(Encoding.ENCODE_METHOD))
-
-
-def hash_password(password: str) -> str:
-    password_bytes = password.encode(Encoding.ENCODE_METHOD)
-    hashed_password = bcrypt.hashpw(password_bytes, bcrypt.gensalt())
-    return hashed_password.decode(Encoding.ENCODE_METHOD)
