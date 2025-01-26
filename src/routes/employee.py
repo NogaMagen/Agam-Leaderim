@@ -9,7 +9,8 @@ router = APIRouter()
 employee_service = EmployeeService()
 
 
-@router.post("/attach_employee_to_employer", response_model=EmployeeAttachResponse, operation_id="attach_employee_to_employer")
+@router.post("/attach_employee_to_employer", response_model=EmployeeAttachResponse,
+             operation_id="attach_employee_to_employer")
 async def attach_employee_to_employer(attach_data: EmployeeAttachCreate, current_user: str = Depends(get_current_user)):
     return employee_service.attach_employee_to_employer(attach_data, current_user)
 

@@ -18,5 +18,3 @@ class EmployerCreateResponse(BaseModel):
 
 class EmployerSearchResponse(BaseModel):
     employers: List[EmployerCreate]
-
-
