@@ -28,7 +28,6 @@ def get_current_user(token: str = Depends(oauth2_scheme)) -> TokenData:
         if username is None:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate credentials")
 
-        # Check if the token is expired
         if payload.get("exp") and datetime.utcfromtimestamp(payload["exp"]) < datetime.utcnow():
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token has expired")
 
