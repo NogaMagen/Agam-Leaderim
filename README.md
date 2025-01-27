@@ -14,7 +14,6 @@ so the cvs files will not populate the db everytime the app start.
 adding a client you can run separately-
 
 
-
 from datetime import datetime, timedelta, timezone
 
 import requests
@@ -25,7 +24,7 @@ ALGORITHM = "HS256"
 
 
 def create_test_token():
-    expire = datetime.now(timezone.utc) + timedelta(minutes=15)  # Use timezone-aware datetime
+    expire = datetime.now(timezone.utc) + timedelta(minutes=15)
     payload = {
         "sub": "test_user",
         "exp": expire.timestamp(),
